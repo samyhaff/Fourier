@@ -17,9 +17,10 @@ ax.imshow(image[:,:,::-1], extent = [0, image.shape[1], 0, image.shape[0]])
 
 X = []
 Y = []
+t = np.linspace(0, 2 * pi, 1000)
 
-def prdouit(z1, z2):
-    return (z1[0] * z2[0] - (z1[1] * z2[1]), z1[1] * z2[0] + (z1[0] * z2[1])
+def produit(z1, z2):
+    return (z1[0] * z2[0] - (z1[1] * z2[1]), z1[1] * z2[0] + (z1[0] * z2[1]))
 
 def z(t, n): return (X[int(t * n / (2 * pi))], Y[int(t * n / (2 * pi))])
 
@@ -36,9 +37,7 @@ def exp_i(t, k):
     return (cos(k * t), sin(k * t))
 
 def f(k, n):
-    def g(t, n): 
-        return (z(t, n)[0] * exp_i(t, k)[0] - (z(t, n)[1] * exp_i(t, k)[1]), 
-        z(t, n)[0] * exp_i(t, k)[1] + (z(t, n)[1] * exp_i(t, k)[0]))
+    def g(t, n): return produit(z(t,n), exp_i(t, k))
     return g
 
 def fourier(n):
@@ -49,9 +48,10 @@ def fourier(n):
     return a
         
 def Z(t, a):
-    s = 0
+    s = (0, 0)
     for k in range(len(a)):
-        s += a[k] * exp_i(t, k - N)
+        x = produit(a[k], exp_i(t, k - N))
+        s = (s[0] + x[0], s[1] + x[1])
     return s
 
 def onclick(event):
@@ -62,7 +62,10 @@ def onclick(event):
         n = len(X)
         print(n)
         print("gathered " + str(n) + " points")
-        print(fourier(n))
+        a = fourier(n)
+        x_plot = [Z(u, a)[0] for u in t]
+        y_plot = [Z(u, a)[1] for u in t]
+        ax.plot(x_plot, y_plot, color = "black")
 
     X.append(event.xdata)
     Y.append(event.ydata)
