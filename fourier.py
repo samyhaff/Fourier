@@ -1,3 +1,7 @@
+""" améliorations possibles:
+    utiliser une classe de nb complexes !!!
+"""
+
 import matplotlib.pyplot as plt 
 import numpy as np 
 import cv2
@@ -65,7 +69,8 @@ def onclick(event):
         a = fourier(n)
         x_plot = [Z(u, a)[0] for u in t]
         y_plot = [Z(u, a)[1] for u in t]
-        ax.plot(x_plot, y_plot, color = "black")
+        ax.clear()
+        ax.plot(x_plot, y_plot, color = "red")
 
     X.append(event.xdata)
     Y.append(event.ydata)
