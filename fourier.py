@@ -80,10 +80,21 @@ def onclick(event):
             ax.add_patch(circles[m])
         line, = ax.plot([], [], color = "blue")
         points = [ax.plot([], [], ls = "none", marker = "o")] * ( 2 * N + 1)
+
+        def list_points(k):
+            l = []
+            s = (0, 0)
+            for i in range(len(a)):
+                u = produit(a[i], exp_i(t[k], i - N))
+                s = (s[0] + u[0], s[1] + u[1])
+                l.append(s)
+            return l
+
         def animate(k):
             line.set_data(x_plot[:k], y_plot[:k])
+            l = list_points(k)
             for m in range(len(a)):
-                x_point, y_point = produit(a[m - N], exp_i(t[k], m - N))
+                x_point, y_point = l[m]
                 points[m][0].set_data(x_point, y_point)
                 circles[m].center = (x_point, y_point)
             return [line] + [points[m][0] for m in range(len(a))] + [circles[m] for m in range(len(a))]
