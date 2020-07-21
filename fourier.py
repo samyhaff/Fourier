@@ -6,17 +6,20 @@ import matplotlib.pyplot as plt
 import numpy as np 
 import cv2
 import sys
+import matplotlib.animation as animation
+import matplotlib.patches as patches
 
 pi = np.pi
 cos = np.cos
 sin = np.sin
+
 path = '/Users/samyhaffoudhi/Desktop/fourier'
 img = sys.argv[1]
 N = int(sys.argv[2])
-fig, ax = plt.subplots()
-
 image = cv2.imread(img)
-print(image.shape)
+fig, ax = plt.subplots()
+ax.set_xlim([0, image.shape[1]])
+ax.set_ylim([0, image.shape[0]])
 ax.imshow(image[:,:,::-1], extent = [0, image.shape[1], 0, image.shape[0]])
 
 X = []
@@ -58,6 +61,7 @@ def Z(t, a):
         s = (s[0] + x[0], s[1] + x[1])
     return s
 
+
 def onclick(event):
     print('%s click: x=%d, y=%d' % 
         ('double' if event.dblclick else 'single', event.xdata, event.ydata))
@@ -69,12 +73,26 @@ def onclick(event):
         a = fourier(n)
         x_plot = [Z(u, a)[0] for u in t]
         y_plot = [Z(u, a)[1] for u in t]
-        ax.clear()
-        ax.plot(x_plot, y_plot, color = "red")
+        #ax.cla()
+        # ax.plot(x_plot, y_plot, color = "red")
+        circles = [patches.Circle((0, 0), np.sqrt(a[m][0] ** 2 + a[m][1] ** 2), fill = False) for m in range(len(a))]
+        for m in range(2 * N + 1):
+            ax.add_patch(circles[m])
+        line, = ax.plot([], [], color = "blue")
+        points = [ax.plot([], [], ls = "none", marker = "o")] * ( 2 * N + 1)
+        def animate(k):
+            line.set_data(x_plot[:k], y_plot[:k])
+            for m in range(len(a)):
+                x_point, y_point = produit(a[m - N], exp_i(t[k], m - N))
+                points[m][0].set_data(x_point, y_point)
+                circles[m].center = (x_point, y_point)
+            return [line] + [points[m][0] for m in range(len(a))] + [circles[m] for m in range(len(a))]
+        ani = animation.FuncAnimation(fig = fig, func = animate,
+                frames = range(len(x_plot)), interval = 10, blit = True)
 
     X.append(event.xdata)
     Y.append(event.ydata)
-    ax.scatter(event.xdata, event.ydata, 10, color = "black")
+    ax.scatter(event.xdata, event.ydata, 5, color = "blue")
     fig.canvas.draw()
 
 cid = fig.canvas.mpl_connect('button_press_event', onclick)
