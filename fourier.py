@@ -8,6 +8,7 @@ import cv2
 import sys
 import matplotlib.animation as animation
 import matplotlib.patches as patches
+import matplotlib.image as images
 
 pi = np.pi
 cos = np.cos
@@ -18,6 +19,7 @@ img = sys.argv[1]
 N = int(sys.argv[2])
 image = cv2.imread(img)
 fig, ax = plt.subplots()
+ax.axis('off')
 ax.set_xlim([0, image.shape[1]])
 ax.set_ylim([0, image.shape[0]])
 ax.imshow(image[:,:,::-1], extent = [0, image.shape[1], 0, image.shape[0]])
@@ -73,8 +75,10 @@ def onclick(event):
         a = fourier(n)
         x_plot = [Z(u, a)[0] for u in t]
         y_plot = [Z(u, a)[1] for u in t]
-        #ax.cla()
-        # ax.plot(x_plot, y_plot, color = "red")
+        ax.cla()
+        ax.axis('off')
+        ax.set_xlim(0, image.shape[1])
+        ax.set_ylim(0, image.shape[0])
         circles = [patches.Circle((0, 0), np.sqrt(a[m][0] ** 2 + a[m][1] ** 2), fill = False) for m in range(len(a))]
         for m in range(2 * N + 1):
             ax.add_patch(circles[m])
@@ -99,7 +103,7 @@ def onclick(event):
                 circles[m].center = (x_point, y_point)
             return [line] + [points[m][0] for m in range(len(a))] + [circles[m] for m in range(len(a))]
         ani = animation.FuncAnimation(fig = fig, func = animate,
-                frames = range(len(x_plot)), interval = 10, blit = True)
+                frames = range(len(x_plot)), interval = 10, repeat = False,  blit = True)
 
     X.append(event.xdata)
     Y.append(event.ydata)
